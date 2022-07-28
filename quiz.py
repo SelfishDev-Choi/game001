@@ -27,7 +27,7 @@ character_size = character.get_rect().size  # 이미지의 크기를 구해 옴
 character_width =character_size[0]          # 캐릭터의 가로 크기
 character_height =character_size[1]         # 캐릭터의 세로 크기
 character_x_pos = (screen_width - character_width) /2
-character_y_pos = screen_height - character_height - 10
+character_y_pos = screen_height - character_height 
 
 # 이동 할 좌표
 to_x = 0
@@ -43,9 +43,9 @@ enemy_width =enemy_size[0]          # 캐릭터의 가로 크기
 enemy_height =enemy_size[1]         # 캐릭터의 세로 크기
 # enemy_x_pos = (screen_width - enemy_width) / 2
 # enemy_y_pos = (screen_height - enemy_height) / 2
-
-enemy_x_pos = randint(0, screen_width)
-enemy_y_pos = randint(0, screen_height)
+enemy_x_pos = randint(5, screen_width-enemy_width-5)
+enemy_y_pos = -enemy_height
+enemy_speed = 10
 
 
 # 폰트 정의
@@ -64,10 +64,9 @@ running = True              # 게임이 진행중인가?
 delay_timeout = False
 
 while running:
-    dt = clock.tick(60)             #게임 화면의 초당 프레임 수를 설정
+    dt = clock.tick(30)             #게임 화면의 초당 프레임 수를 설정
 
-    #print("fps : " + str(clock.get_fps())) # 프레임 속도를 출력해 볼 수 있음
-
+# 키보드 이벤트
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -78,39 +77,29 @@ while running:
             if event.key == pygame.K_RIGHT:
                 # pass
                 to_x += character_speed
-            if event.key == pygame.K_UP:
-                to_y -= character_speed
-                # pass
-            if event.key == pygame.K_DOWN:
-                to_y += character_speed
-                # pass
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 to_x = 0
             elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                 to_y = 0
-        if event.type == pygame.MOUSEMOTION:
-            # pass
-            print("EVENT MOUSE MOTION")
-            print(pygame.mouse.get_pos())
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # pass
-            print("EVENT MOUSE BUTTON DOWN")
-
+# 3. 게임 캐릭터 위치 정의
     character_x_pos += to_x * dt        # 프레임 속도에 따라 속도를 유지하기 위해 dt를 곱해준다.
     character_y_pos += to_y * dt
 
+    
     # 캐릭터가 화면 밖으로 나가지 않도록 경계값 처리
     if character_x_pos <= 0: 
         character_x_pos = 0
     if character_x_pos >= (screen_width - character_width): 
         character_x_pos = screen_width - character_width
 
-    if character_y_pos <= 0: 
-        character_y_pos = 0
-    if character_y_pos >= (screen_height - character_height - 10): 
-        character_y_pos = screen_height - character_height - 10
+    # Enemy 위치 변경
+    if enemy_y_pos >= (screen_height - enemy_height):
+        enemy_x_pos = randint(5, screen_width-enemy_width-5)
+        enemy_y_pos = -enemy_height
+    else:
+        enemy_y_pos += enemy_speed
 
     # 충돌 처리를 위한 rect 정보 업데이트
     character_rect = character.get_rect()
@@ -133,29 +122,28 @@ while running:
 
     screen.blit(enemy, (enemy_x_pos, enemy_y_pos))
 
-    # 타이머 집어 넣기
-    # 경과 시간 계산 
-    elapsed_time = (pygame.time.get_ticks() - start_ticks) / 1000 # 경과 시간을 1000으로 나누어서 초단위로 변경
+# 타이머 집어 넣기
+# 경과 시간 계산 
+    # elapsed_time = (pygame.time.get_ticks() - start_ticks) / 1000 # 경과 시간을 1000으로 나누어서 초단위로 변경
 
-    # game_font.render 를 통해서 출력할 글자를 만들어 준다.
-    if int(total_time - elapsed_time)  == 0:
-        time_text = game_font.render("GAME OVER", True, (255, 255, 255))
-        running = False
-        delay_timeout = True
-    # elif int(total_time - elapsed_time)  < 0:
-        running = False
-        dalay_timeout = True
-        # pass
-    else:
-        time_text = game_font.render(str(int(total_time - elapsed_time)), True, (255, 255, 255))
+# game_font.render 를 통해서 출력할 글자를 만들어 준다.
+    # if int(total_time - elapsed_time)  == 0:
+    #     time_text = game_font.render("GAME OVER", True, (255, 255, 255))
+    #     running = False
+    #     delay_timeout = True
+# elif int(total_time - elapsed_time)  < 0:
+    #     running = False
+    #     dalay_timeout = True
+    # else:
+    #     time_text = game_font.render(str(int(total_time - elapsed_time)), True, (255, 255, 255))
     
-    screen.blit(time_text, (10, 10))
+    # screen.blit(time_text, (10, 10))
 
     pygame.display.update()             # 게임 화면을 다시 그리기 (계속 그려야 함)
 
 #시간이 초과되어 종료 되는 경우 2초 지연 후 종료
-if delay_timeout:
-    pygame.time.delay(2*1000) # 종료 하기 전 2초 정도 대기
+# if delay_timeout:
+#     pygame.time.delay(2*1000) # 종료 하기 전 2초 정도 대기
 
 pygame.quit()       #pygame 종료
 
